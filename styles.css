@@ -1,0 +1,164 @@
+html, body{
+	margin:0;
+	padding: 0;
+	font-family: sans-serif;
+	color: #555;
+}
+
+#container{
+	margin:0;
+	padding: 0;
+	width: 320px;
+	overflow-x: hidden;
+	/*width:640px;*/
+}
+
+.event{
+	position: relative;
+	background-color: #F7F7F7;
+	/*width: 314px;*/
+	width: 628px;
+	font-size: 16px;
+	margin-bottom: 20px;
+	margin-left: 6px;
+	border: 1px solid black;
+}
+
+.event_left{
+	margin-right: -4px;
+	display: inline-block;
+	width: 314px;
+	position: relative;
+}
+
+.event_right{
+	margin-right: -4px;
+	display: inline-block;
+	width: 314px;
+	height: 200px;
+	vertical-align: top;
+	position: relative;
+}
+
+.event_time{
+	position: relative;
+	text-align: right;
+	font-size: 14px;
+	height: 30px;
+	line-height: 30px;
+	border-bottom: 1px solid #B4B4B4;
+	background-color: #ECECEC;
+}
+
+.team{
+	position: relative;
+	text-align: center;
+	border-bottom: 1px solid #B4B4B4;
+}
+
+.team_name{
+	height:45px;
+	line-height: 45px;
+	width: 100%;
+}
+
+.spread{
+	position: relative;
+	float:right;
+	width:100px;
+	border-left: 1px solid #E2E2E2;
+	border-top: 1px solid #E2E2E2;
+	height: 50px;
+	line-height: 50px;
+
+}
+
+.line{
+	position: relative;
+	float:right;
+	width:100px;
+	height: 50px;
+	line-height: 50px;
+	border-left: 1px solid #E2E2E2;
+	border-top: 1px solid #E2E2E2;
+}
+
+.over_under{
+	position: relative;
+	text-align: center;
+}
+
+
+.over{
+	position: relative;
+	float:right;
+	width:100px;
+	border-left: 1px solid #E2E2E2;
+	height: 50px;
+	line-height: 50px;
+
+}
+
+.under{
+	position: relative;
+	float:right;
+	width:100px;
+	height: 50px;
+	line-height: 50px;
+	border-left: 1px solid #E2E2E2;
+}
+
+.back_button{
+	position: absolute;
+	top:0px;
+	left:0px;
+	width: 50px;
+	height: 50px;
+	border-right: 1px solid #B4B4B4;
+	border-bottom: 1px solid #B4B4B4;
+	background-color: #ECECEC;
+
+}
+
+.slider{
+	position: relative;
+	margin-top: 160px;
+	width: 290px;
+	height: 50px;
+	margin-left: 10px;
+	border: 1px solid black;
+}
+
+.slider_fill{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100px;
+	height: 50px;
+	background-color: green;
+}
+
+.slider_button{
+	position: absolute;
+	width: 20px;
+	height: 30px;
+	left: 90px;
+	top: 10px;
+	background-color: black;
+
+}
+
+.amount{
+	position: absolute;
+	top:130px;
+	left: 30px;
+	width: 70px;
+	height: 20px;
+	border-bottom: 1px solid black;
+	text-align: center;
+}
+
+.range{
+	width: 200px;
+	height: 50px;
+}
