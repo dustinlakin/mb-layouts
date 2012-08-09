@@ -1,8 +1,10 @@
 $(document).ready =>
 	$(".event_left").on "click", ->
-		bet_transition this
+		bet_transition_groups this
 	$(".back_button").on "click", ->
-		bet_transition_back this
+		bet_transition_home this
+	$(".groups li").on "click", ->
+		bet_transition_amount this
 	paper = Raphael "back_btn", 50, 50	
 	paper
 	.path("M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z")
@@ -18,13 +20,18 @@ $(document).ready =>
 		min : 100
 		step : 20
 
-bet_transition = (el) ->
+bet_transition_groups = (el) ->
 	$(el).parent().animate
 		"margin-left" : -315
 
-bet_transition_back = (el) ->
+bet_transition_home = (el) ->
 	$(el).parent().parent().animate
 		"margin-left" : 6 
+
+bet_transition_amount = (el) ->
+	$(el).parent().parent().parent().animate
+		"margin-left" : -635
+
 
 class Slider
 	constructor: (@settings) ->

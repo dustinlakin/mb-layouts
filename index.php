@@ -1,7 +1,7 @@
 <html>
 <head>
 	<title>Testing</title>
-	<link href="styles.css" type="text/css" rel="stylesheet"/>
+	<link href="css/styles.css" type="text/css" rel="stylesheet"/>
 	<meta name="viewport" content="width=320"/>
 </head>
 <body>
@@ -46,6 +46,26 @@
 					</div>
 					<br style="clear:both"/>
 				</div>
+			</div>
+			<div class="event_middle">
+				<ul class="groups">
+					<li>
+						<div class="group_name">
+							I'm New
+						</div>
+						<div class="group_amount_limits">
+							$100 - $500
+						</div>
+					</li>
+					<li>
+						<div class="group_name">
+							NBA Champs
+						</div>
+						<div class="group_amount_limits">
+							$100 - $1500
+						</div>
+					</li>
+				</ul>
 			</div>
 			<div class="event_right">
 				<div class="back_button" id="back_btn">
@@ -101,9 +121,9 @@
 		</div>
 	</div>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="jquery.transit.min.js"></script>
-	<script type="text/javascript" src="raphael-min.js"></script>
-	<script type="text/javascript" src="modernizr.js"></script>
-	<script type="text/javascript" src="script.js"></script>
+	<script type="text/javascript" src="js/jquery.transit.min.js"></script>
+	<script type="text/javascript" src="js/raphael-min.js"></script>
+	<script type="text/javascript" src="js/modernizr.js"></script>
+	<script type="text/javascript" src="js/script.js"></script>
 </body>
 </html>
