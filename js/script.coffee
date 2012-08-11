@@ -27,7 +27,9 @@ get_event_data = ->
 		url : "http://localhost:3000/eventResults",
 		dataType : "JSONP",
 		success : (data)->
-			createEvent(data)
+			for ev in data
+				console.log "creating event ",ev
+				createEvent(ev)
 
 createEvent = (data)->
 	console.log(data)
@@ -138,17 +140,45 @@ class Game
 			@toGroups()
 		@el.find(".back_button").on "click", =>
 			@toOdds()
-		@el.find(".groups li").on "click", =>
-			@toAmount()
+		
+
+	getValidGroups : () =>
+		@el.find(".event_middle").html("Loading");
+		$.ajax
+			url : "http://localhost:3000/getValidGroups",
+			data :
+				event : @id
+				user : 1
+			dataType : "JSONP",
+			success : (groups) =>
+				@create_groups groups
+
+
+	create_groups : (groups) =>
+		@groups = groups
+		build_groups @el, @groups
+		for group, i in @groups
+			@el.find("#valid_group_#{group.id}").on "click", =>
+				@select_group(group.id)
+
+	build_groups = (el, groups) =>
+		temp = $("#valid_groups").html();
+		compiled = _.template(temp);
+		el.find(".event_middle").html(compiled({groups : groups}));
+
+	select_group : (id) =>
+		console.log("group #{id}")
+		@toAmount()
 
 	toOdds : () =>
 		@el.transition "marginLeft" : 6
 
 	toGroups : () =>
 		@el.transition "marginLeft" : -315
+		@getValidGroups()
 
 	toAmount : () =>
 		@el.transition "marginLeft" : -635
 
-	toString : ()->
+	toString : () =>
 		"Game ##{@id} | #{@name} | #{@date}"

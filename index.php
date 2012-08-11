@@ -132,7 +132,7 @@
 					%>
 				<div class="team">
 					<div class="team_name">
-						<%=schedule.team.name%>
+						<%=schedule.team.city%> <%=schedule.team.name%>
 					</div>
 					<%if(schedule.spread){%>
 					<div class="spread" id="spread_<%=schedule.spread.id%>">
@@ -147,7 +147,7 @@
 					<br style="clear:both"/>
 				</div>
 				<%}%>
-				<%if(game.overUnder){%>
+				<%if(game.overUnder.length > 0){%>
 				<div class="over_under">
 					<div class="under">
 						Under <%=_.find(game.overUnder, function(obj){
@@ -164,24 +164,7 @@
 				<%}%>
 			</div>
 			<div class="event_middle">
-				<ul class="groups">
-					<li>
-						<div class="group_name">
-							Im New
-						</div>
-						<div class="group_amount_limits">
-							$100 - $500
-						</div>
-					</li>
-					<li>
-						<div class="group_name">
-							NBA Champs
-						</div>
-						<div class="group_amount_limits">
-							$100 - $1500
-						</div>
-					</li>
-				</ul>
+				
 			</div>
 			<div class="event_right">
 				<div class="back_button" id="back_btn">
@@ -195,6 +178,24 @@
 				</div>
 			</div>
 		</div>
+	</script>
+	<script type="text/template" id="valid_groups">
+		<ul class="groups">
+			<% 
+			var group;
+			for(var i = 0, len = groups.length; i < len; i++){
+				group = groups[i];
+				%>
+			<li id="valid_group_<%=group.id%>">
+				<div class="group_name">
+					<%=group.name%>
+				</div>
+				<div class="group_amount_limits">
+					$<%=group.min_bet%> - $<%=group.max_bet%>
+				</div>
+			</li>
+			<%}%>
+		</ul>
 	</script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery.transit.min.js"></script>

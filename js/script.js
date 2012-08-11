@@ -36,7 +36,14 @@
       url: "http://localhost:3000/eventResults",
       dataType: "JSONP",
       success: function(data) {
-        return createEvent(data);
+        var ev, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          ev = data[_i];
+          console.log("creating event ", ev);
+          _results.push(createEvent(ev));
+        }
+        return _results;
       }
     });
   };
@@ -170,13 +177,23 @@
   })();
 
   Game = (function() {
+    var build_groups,
+      _this = this;
 
     function Game(data) {
+      this.toString = __bind(this.toString, this);
+
       this.toAmount = __bind(this.toAmount, this);
 
       this.toGroups = __bind(this.toGroups, this);
 
       this.toOdds = __bind(this.toOdds, this);
+
+      this.select_group = __bind(this.select_group, this);
+
+      this.create_groups = __bind(this.create_groups, this);
+
+      this.getValidGroups = __bind(this.getValidGroups, this);
 
       this.setupEvents = __bind(this.setupEvents, this);
 
@@ -205,12 +222,55 @@
       this.el.find(".event_left").on("click", function() {
         return _this.toGroups();
       });
-      this.el.find(".back_button").on("click", function() {
+      return this.el.find(".back_button").on("click", function() {
         return _this.toOdds();
       });
-      return this.el.find(".groups li").on("click", function() {
-        return _this.toAmount();
+    };
+
+    Game.prototype.getValidGroups = function() {
+      var _this = this;
+      this.el.find(".event_middle").html("Loading");
+      return $.ajax({
+        url: "http://localhost:3000/getValidGroups",
+        data: {
+          event: this.id,
+          user: 1
+        },
+        dataType: "JSONP",
+        success: function(groups) {
+          return _this.create_groups(groups);
+        }
       });
+    };
+
+    Game.prototype.create_groups = function(groups) {
+      var group, i, _i, _len, _ref, _results,
+        _this = this;
+      this.groups = groups;
+      build_groups(this.el, this.groups);
+      _ref = this.groups;
+      _results = [];
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        group = _ref[i];
+        _results.push(this.el.find("#valid_group_" + group.id).on("click", function() {
+          return _this.select_group(group.id);
+        }));
+      }
+      return _results;
+    };
+
+    build_groups = function(el, groups) {
+      var compiled, temp;
+      temp = $("#valid_groups").html();
+      compiled = _.template(temp);
+      return el.find(".event_middle").html(compiled({
+        groups: groups
+      }));
+    };
+
+    Game.prototype.select_group = function(id) {
+      console.log("group " + id);
+      return this.toAmount();
     };
 
     Game.prototype.toOdds = function() {
@@ -220,9 +280,10 @@
     };
 
     Game.prototype.toGroups = function() {
-      return this.el.transition({
+      this.el.transition({
         "marginLeft": -315
       });
+      return this.getValidGroups();
     };
 
     Game.prototype.toAmount = function() {
@@ -237,6 +298,6 @@
 
     return Game;
 
-  })();
+  }).call(this);
 
 }).call(this);
