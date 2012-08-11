@@ -20,17 +20,30 @@ $(document).ready =>
 		min : 100
 		step : 20
 
+	get_event_data()
+
+get_event_data = ->
+	$.ajax
+		url : "http://localhost:3000/eventResults",
+		dataType : "JSONP",
+		success : (data)->
+			createEvent(data)
+
+createEvent = (data)->
+	console.log(data)
+	console.log(new Game(data))
+
 bet_transition_groups = (el) ->
-	$(el).parent().animate
-		"margin-left" : -315
+	$(el).parent().transition
+		"marginLeft" : -315
 
 bet_transition_home = (el) ->
-	$(el).parent().parent().animate
-		"margin-left" : 6 
+	$(el).parent().parent().transition
+		"marginLeft" : 6 
 
 bet_transition_amount = (el) ->
-	$(el).parent().parent().parent().animate
-		"margin-left" : -635
+	$(el).parent().parent().parent().transition
+		"marginLeft" : -635
 
 
 class Slider
@@ -102,3 +115,40 @@ class Slider
 		$(".amount").css
 			left : amountPos
 		.text(Math.ceil(roundedAmount))
+
+
+class Game
+	constructor : (data) ->
+		@id = data.id
+		@date = data.bet_by
+		@name = data.name
+		@schedules = data.schedules
+		@overUnder = data.overUnders
+		@render()
+		@setupEvents()
+
+	render : () =>
+		temp  = $("#singleGame").html();
+		compiled = _.template(temp);
+		$("#container").append(compiled({game : @}))
+		@el = $("#game_#{@id}")
+
+	setupEvents : () =>
+		@el.find(".event_left").on "click", =>
+			@toGroups()
+		@el.find(".back_button").on "click", =>
+			@toOdds()
+		@el.find(".groups li").on "click", =>
+			@toAmount()
+
+	toOdds : () =>
+		@el.transition "marginLeft" : 6
+
+	toGroups : () =>
+		@el.transition "marginLeft" : -315
+
+	toAmount : () =>
+		@el.transition "marginLeft" : -635
+
+	toString : ()->
+		"Game ##{@id} | #{@name} | #{@date}"
