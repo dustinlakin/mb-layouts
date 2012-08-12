@@ -167,7 +167,7 @@
       if (amountPos > this.width - this.box.width + this.left) {
         amountPos = this.width - this.box.width + this.left;
       }
-      return $(".amount").css({
+      return $("#" + this.id).parent().find(".amount").css({
         left: amountPos
       }).text(Math.ceil(roundedAmount));
     };
@@ -218,10 +218,30 @@
     };
 
     Game.prototype.setupEvents = function() {
-      var _this = this;
-      this.el.find(".event_left").on("click", function() {
-        return _this.toGroups();
-      });
+      var i, line, sch, spread, team, _i, _len, _ref,
+        _this = this;
+      _ref = this.schedules;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        sch = _ref[i];
+        if (sch.spread) {
+          team = sch.team;
+          spread = sch.spread;
+          (function(team, spread) {
+            return _this.el.find("#spread_" + spread.id).on("click", function() {
+              return _this.toGroups(team, "spread", spread);
+            });
+          })(team, spread);
+        }
+        if (sch.moneyLine) {
+          team = sch.team.id;
+          line = sch.moneyLine.id;
+          (function(team, line) {
+            return _this.el.find("#line_" + line.id).on("click", function() {
+              return _this.toGroups(team, "line", line);
+            });
+          })(team, line);
+        }
+      }
       return this.el.find(".back_button").on("click", function() {
         return _this.toOdds();
       });
@@ -269,7 +289,19 @@
     };
 
     Game.prototype.select_group = function(id) {
+      var group;
       console.log("group " + id);
+      group = _.find(this.groups, function(g) {
+        return g.id = id;
+      });
+      console.log(group);
+      this.slider = new Slider({
+        id: "slider_event_" + this.id,
+        max: group.max_bet,
+        min: group.min_bet,
+        step: 10
+      });
+      console.log(this.slider);
       return this.toAmount();
     };
 
@@ -279,7 +311,8 @@
       });
     };
 
-    Game.prototype.toGroups = function() {
+    Game.prototype.toGroups = function(team, type, object) {
+      console.log("to Groups", team, type, object);
       this.el.transition({
         "marginLeft": -315
       });

@@ -114,7 +114,9 @@ class Slider
 		amountPos = pos + @left - (@box.width / 2)
 		amountPos = @left if amountPos < @left
 		amountPos = @width - @box.width + @left if amountPos > @width - @box.width + @left
-		$(".amount").css
+		$("##{@id}")
+		.parent()
+		.find(".amount").css
 			left : amountPos
 		.text(Math.ceil(roundedAmount))
 
@@ -136,8 +138,22 @@ class Game
 		@el = $("#game_#{@id}")
 
 	setupEvents : () =>
-		@el.find(".event_left").on "click", =>
-			@toGroups()
+		for sch, i in @schedules
+			if sch.spread
+				team = sch.team
+				spread = sch.spread
+				do (team, spread) =>
+					@el.find("#spread_#{spread.id}").on "click", =>
+						@toGroups(team, "spread", spread)
+			if sch.moneyLine
+				team = sch.team.id
+				line = sch.moneyLine.id
+				do (team, line) =>
+					@el.find("#line_#{line.id}").on "click", =>
+						@toGroups(team, "line", line)
+
+		# @el.find(".event_left").on "click", =>
+			# @toGroups()
 		@el.find(".back_button").on "click", =>
 			@toOdds()
 		
@@ -168,12 +184,24 @@ class Game
 
 	select_group : (id) =>
 		console.log("group #{id}")
+		# find group
+		group = _.find(@groups, (g) -> g.id = id)
+		console.log group
+
+		@slider = new Slider 
+			id : "slider_event_#{@id}"
+			max : group.max_bet
+			min : group.min_bet
+			step : 10
+		console.log @slider
 		@toAmount()
+
 
 	toOdds : () =>
 		@el.transition "marginLeft" : 6
 
-	toGroups : () =>
+	toGroups : (team, type, object) =>
+		console.log "to Groups", team, type, object
 		@el.transition "marginLeft" : -315
 		@getValidGroups()
 

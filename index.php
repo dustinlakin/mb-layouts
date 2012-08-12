@@ -172,7 +172,8 @@
 				<div class="amount">
 					testing
 				</div>
-				<div id="slider_event" class="slider">
+
+				<div id="slider_event_<%=game.id%>" class="slider">
 					<div class="slider_fill">
 					</div>
 				</div>
