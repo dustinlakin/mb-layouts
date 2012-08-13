@@ -24,7 +24,7 @@ $(document).ready =>
 
 get_event_data = ->
 	$.ajax
-		url : "http://localhost:3000/eventResults",
+		url : "http://192.168.1.103:3000/eventResults",
 		dataType : "JSONP",
 		success : (data)->
 			for ev in data
@@ -53,9 +53,10 @@ class Slider
 		@width = 290
 		@left = 10
 		@box =
-			width : 70
+			width : 120
 		@current = @settings.min
 		@id = @settings.id 
+		@odds = @settings.odds
 		@percent = 0
 		@setupEvents @id
 		@beingTouched = false
@@ -99,6 +100,13 @@ class Slider
 		event.preventDefault()
 		@beingTouched = false
 
+	setOdds : (@odds) =>
+
+	calculateResult : (amount) =>
+		ret = Math.abs(@odds/100) * amount if(@odds > 0)
+		ret = Math.abs(100/@odds) * amount if(@odds < 0)
+		Math.floor(ret)
+
 	update: =>
 		pos = Math.ceil(@percent * @width)
 		pos = 0 if pos < 0
@@ -114,11 +122,15 @@ class Slider
 		amountPos = pos + @left - (@box.width / 2)
 		amountPos = @left if amountPos < @left
 		amountPos = @width - @box.width + @left if amountPos > @width - @box.width + @left
+		result = @calculateResult(roundedAmount)
+		output = "$#{roundedAmount} -> $#{result}"
+
 		$("##{@id}")
 		.parent()
 		.find(".amount").css
 			left : amountPos
-		.text(Math.ceil(roundedAmount))
+		.text(output)
+		@current = roundedAmount
 
 
 class Game
@@ -128,6 +140,8 @@ class Game
 		@name = data.name
 		@schedules = data.schedules
 		@overUnder = data.overUnders
+		@selectedGroup = null
+		@selectedBet = null
 		@render()
 		@setupEvents()
 
@@ -139,69 +153,74 @@ class Game
 
 	setupEvents : () =>
 		for sch, i in @schedules
+			console.log(sch, i)
 			if sch.spread
 				team = sch.team
 				spread = sch.spread
-				do (team, spread) =>
-					@el.find("#spread_#{spread.id}").on "click", =>
-						@toGroups(team, "spread", spread)
+				@el.find("#spread_#{spread.id}").on "click", do(team,spread) =>
+					=> @selectBet(team, "spread", spread)
 			if sch.moneyLine
-				team = sch.team.id
-				line = sch.moneyLine.id
-				do (team, line) =>
-					@el.find("#line_#{line.id}").on "click", =>
-						@toGroups(team, "line", line)
+				team = sch.team
+				line = sch.moneyLine
+				@el.find("#line_#{line.id}").on "click", do(team,line) =>
+					=> @selectBet(team, "line", line)
 
-		# @el.find(".event_left").on "click", =>
-			# @toGroups()
 		@el.find(".back_button").on "click", =>
 			@toOdds()
-		
+
 
 	getValidGroups : () =>
 		@el.find(".event_middle").html("Loading");
 		$.ajax
-			url : "http://localhost:3000/getValidGroups",
+			url : "http://192.168.1.103:3000/getValidGroups",
 			data :
 				event : @id
 				user : 1
 			dataType : "JSONP",
 			success : (groups) =>
-				@create_groups groups
+				@createGroups groups
 
 
-	create_groups : (groups) =>
+	createGroups : (groups) =>
 		@groups = groups
-		build_groups @el, @groups
+		buildGroups @el, @groups
 		for group, i in @groups
 			@el.find("#valid_group_#{group.id}").on "click", =>
-				@select_group(group.id)
+				@selectGroup(group.id)
 
-	build_groups = (el, groups) =>
+	buildGroups = (el, groups) =>
 		temp = $("#valid_groups").html();
 		compiled = _.template(temp);
 		el.find(".event_middle").html(compiled({groups : groups}));
 
-	select_group : (id) =>
+	selectGroup : (id) =>
 		console.log("group #{id}")
 		# find group
 		group = _.find(@groups, (g) -> g.id = id)
-		console.log group
+		@selectedGroup = group
 
 		@slider = new Slider 
 			id : "slider_event_#{@id}"
 			max : group.max_bet
 			min : group.min_bet
 			step : 10
-		console.log @slider
+			odds : @selectedBet.bet.odds
 		@toAmount()
 
+	selectBet : (team, type, bet) =>
+		@selectedBet =
+			team : team
+			type : type
+			bet : bet
+		@toGroups()
 
 	toOdds : () =>
 		@el.transition "marginLeft" : 6
+		@selectedGroup = null
+		@selectedBet = null
+		console.log @slider.current
 
-	toGroups : (team, type, object) =>
-		console.log "to Groups", team, type, object
+	toGroups : () =>
 		@el.transition "marginLeft" : -315
 		@getValidGroups()
 

@@ -169,6 +169,9 @@
 			<div class="event_right">
 				<div class="back_button" id="back_btn">
 				</div>
+				<div class="bet_description">
+					Bet Descriptions Goes Here
+				</div>
 				<div class="amount">
 					testing
 				</div>

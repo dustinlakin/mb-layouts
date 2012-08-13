@@ -120,8 +120,8 @@ html, body{
 	position: absolute;
 	top:0px;
 	left:0px;
-	width: 50px;
-	height: 50px;
+	width: 30px;
+	height: 30px;
 	border-right: 1px solid #B4B4B4;
 	border-bottom: 1px solid #B4B4B4;
 	background-color: #ECECEC;
@@ -130,7 +130,7 @@ html, body{
 
 .slider{
 	position: relative;
-	margin-top: 160px;
+	margin-top: 40px;
 	width: 290px;
 	height: 50px;
 	margin-left: 10px;
@@ -155,12 +155,18 @@ html, body{
 	background-color: black;
 
 }
+.bet_description{
+	margin-top: 45px;
+	text-align: center;
+	font-size: 18px;
+
+}
 
 .amount{
 	position: absolute;
-	top:130px;
+	top:75px;
 	left: 30px;
-	width: 70px;
+	width: 120px;
 	height: 20px;
 	border-bottom: 1px solid black;
 	text-align: center;

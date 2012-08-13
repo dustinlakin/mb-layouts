@@ -33,7 +33,7 @@
 
   get_event_data = function() {
     return $.ajax({
-      url: "http://localhost:3000/eventResults",
+      url: "http://192.168.1.103:3000/eventResults",
       dataType: "JSONP",
       success: function(data) {
         var ev, _i, _len, _results;
@@ -77,6 +77,10 @@
       this.settings = settings;
       this.update = __bind(this.update, this);
 
+      this.calculateResult = __bind(this.calculateResult, this);
+
+      this.setOdds = __bind(this.setOdds, this);
+
       this.touchEnd = __bind(this.touchEnd, this);
 
       this.touchMoved = __bind(this.touchMoved, this);
@@ -86,10 +90,11 @@
       this.width = 290;
       this.left = 10;
       this.box = {
-        width: 70
+        width: 120
       };
       this.current = this.settings.min;
       this.id = this.settings.id;
+      this.odds = this.settings.odds;
       this.percent = 0;
       this.setupEvents(this.id);
       this.beingTouched = false;
@@ -140,8 +145,23 @@
       return this.beingTouched = false;
     };
 
+    Slider.prototype.setOdds = function(odds) {
+      this.odds = odds;
+    };
+
+    Slider.prototype.calculateResult = function(amount) {
+      var ret;
+      if (this.odds > 0) {
+        ret = Math.abs(this.odds / 100) * amount;
+      }
+      if (this.odds < 0) {
+        ret = Math.abs(100 / this.odds) * amount;
+      }
+      return Math.floor(ret);
+    };
+
     Slider.prototype.update = function() {
-      var amountPos, beforeStep, pos, roundedAmount;
+      var amountPos, beforeStep, output, pos, result, roundedAmount;
       pos = Math.ceil(this.percent * this.width);
       if (pos < 0) {
         pos = 0;
@@ -167,9 +187,12 @@
       if (amountPos > this.width - this.box.width + this.left) {
         amountPos = this.width - this.box.width + this.left;
       }
-      return $("#" + this.id).parent().find(".amount").css({
+      result = this.calculateResult(roundedAmount);
+      output = "$" + roundedAmount + " -> $" + result;
+      $("#" + this.id).parent().find(".amount").css({
         left: amountPos
-      }).text(Math.ceil(roundedAmount));
+      }).text(output);
+      return this.current = roundedAmount;
     };
 
     return Slider;
@@ -177,7 +200,7 @@
   })();
 
   Game = (function() {
-    var build_groups,
+    var buildGroups,
       _this = this;
 
     function Game(data) {
@@ -189,9 +212,11 @@
 
       this.toOdds = __bind(this.toOdds, this);
 
-      this.select_group = __bind(this.select_group, this);
+      this.selectBet = __bind(this.selectBet, this);
 
-      this.create_groups = __bind(this.create_groups, this);
+      this.selectGroup = __bind(this.selectGroup, this);
+
+      this.createGroups = __bind(this.createGroups, this);
 
       this.getValidGroups = __bind(this.getValidGroups, this);
 
@@ -203,6 +228,8 @@
       this.name = data.name;
       this.schedules = data.schedules;
       this.overUnder = data.overUnders;
+      this.selectedGroup = null;
+      this.selectedBet = null;
       this.render();
       this.setupEvents();
     }
@@ -223,23 +250,24 @@
       _ref = this.schedules;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         sch = _ref[i];
+        console.log(sch, i);
         if (sch.spread) {
           team = sch.team;
           spread = sch.spread;
-          (function(team, spread) {
-            return _this.el.find("#spread_" + spread.id).on("click", function() {
-              return _this.toGroups(team, "spread", spread);
-            });
-          })(team, spread);
+          this.el.find("#spread_" + spread.id).on("click", (function(team, spread) {
+            return function() {
+              return _this.selectBet(team, "spread", spread);
+            };
+          })(team, spread));
         }
         if (sch.moneyLine) {
-          team = sch.team.id;
-          line = sch.moneyLine.id;
-          (function(team, line) {
-            return _this.el.find("#line_" + line.id).on("click", function() {
-              return _this.toGroups(team, "line", line);
-            });
-          })(team, line);
+          team = sch.team;
+          line = sch.moneyLine;
+          this.el.find("#line_" + line.id).on("click", (function(team, line) {
+            return function() {
+              return _this.selectBet(team, "line", line);
+            };
+          })(team, line));
         }
       }
       return this.el.find(".back_button").on("click", function() {
@@ -251,35 +279,35 @@
       var _this = this;
       this.el.find(".event_middle").html("Loading");
       return $.ajax({
-        url: "http://localhost:3000/getValidGroups",
+        url: "http://192.168.1.103:3000/getValidGroups",
         data: {
           event: this.id,
           user: 1
         },
         dataType: "JSONP",
         success: function(groups) {
-          return _this.create_groups(groups);
+          return _this.createGroups(groups);
         }
       });
     };
 
-    Game.prototype.create_groups = function(groups) {
+    Game.prototype.createGroups = function(groups) {
       var group, i, _i, _len, _ref, _results,
         _this = this;
       this.groups = groups;
-      build_groups(this.el, this.groups);
+      buildGroups(this.el, this.groups);
       _ref = this.groups;
       _results = [];
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         group = _ref[i];
         _results.push(this.el.find("#valid_group_" + group.id).on("click", function() {
-          return _this.select_group(group.id);
+          return _this.selectGroup(group.id);
         }));
       }
       return _results;
     };
 
-    build_groups = function(el, groups) {
+    buildGroups = function(el, groups) {
       var compiled, temp;
       temp = $("#valid_groups").html();
       compiled = _.template(temp);
@@ -288,31 +316,42 @@
       }));
     };
 
-    Game.prototype.select_group = function(id) {
+    Game.prototype.selectGroup = function(id) {
       var group;
       console.log("group " + id);
       group = _.find(this.groups, function(g) {
         return g.id = id;
       });
-      console.log(group);
+      this.selectedGroup = group;
       this.slider = new Slider({
         id: "slider_event_" + this.id,
         max: group.max_bet,
         min: group.min_bet,
-        step: 10
+        step: 10,
+        odds: this.selectedBet.bet.odds
       });
-      console.log(this.slider);
       return this.toAmount();
     };
 
-    Game.prototype.toOdds = function() {
-      return this.el.transition({
-        "marginLeft": 6
-      });
+    Game.prototype.selectBet = function(team, type, bet) {
+      this.selectedBet = {
+        team: team,
+        type: type,
+        bet: bet
+      };
+      return this.toGroups();
     };
 
-    Game.prototype.toGroups = function(team, type, object) {
-      console.log("to Groups", team, type, object);
+    Game.prototype.toOdds = function() {
+      this.el.transition({
+        "marginLeft": 6
+      });
+      this.selectedGroup = null;
+      this.selectedBet = null;
+      return console.log(this.slider.current);
+    };
+
+    Game.prototype.toGroups = function() {
       this.el.transition({
         "marginLeft": -315
       });
