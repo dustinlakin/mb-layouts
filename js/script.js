@@ -33,7 +33,7 @@
 
   get_event_data = function() {
     return $.ajax({
-      url: "http://192.168.1.103:3000/eventResults",
+      url: "http://192.168.1.106:3000/eventResults",
       dataType: "JSONP",
       success: function(data) {
         var ev, _i, _len, _results;
@@ -77,6 +77,8 @@
       this.settings = settings;
       this.update = __bind(this.update, this);
 
+      this.setPercent = __bind(this.setPercent, this);
+
       this.calculateResult = __bind(this.calculateResult, this);
 
       this.setOdds = __bind(this.setOdds, this);
@@ -86,6 +88,8 @@
       this.touchMoved = __bind(this.touchMoved, this);
 
       this.touchStarted = __bind(this.touchStarted, this);
+
+      this.setOnChangeCallback = __bind(this.setOnChangeCallback, this);
 
       this.width = 290;
       this.left = 10;
@@ -98,7 +102,13 @@
       this.percent = 0;
       this.setupEvents(this.id);
       this.beingTouched = false;
+      this.percent = .5;
+      this.update();
     }
+
+    Slider.prototype.setOnChangeCallback = function(onChangeCallback) {
+      this.onChangeCallback = onChangeCallback;
+    };
 
     Slider.prototype.setupEvents = function() {
       if (Modernizr.touch) {
@@ -160,8 +170,12 @@
       return Math.floor(ret);
     };
 
+    Slider.prototype.setPercent = function(percent) {
+      this.percent = percent;
+    };
+
     Slider.prototype.update = function() {
-      var amountPos, beforeStep, output, pos, result, roundedAmount;
+      var amountPos, beforeStep, output, pos, roundedAmount;
       pos = Math.ceil(this.percent * this.width);
       if (pos < 0) {
         pos = 0;
@@ -187,12 +201,15 @@
       if (amountPos > this.width - this.box.width + this.left) {
         amountPos = this.width - this.box.width + this.left;
       }
-      result = this.calculateResult(roundedAmount);
-      output = "$" + roundedAmount + " -> $" + result;
+      this.reward = this.calculateResult(roundedAmount);
+      output = "$" + roundedAmount + " -> $" + this.reward;
       $("#" + this.id).parent().find(".amount").css({
         left: amountPos
       }).text(output);
-      return this.current = roundedAmount;
+      this.current = roundedAmount;
+      if (this.onChangeCallback != null) {
+        return this.onChangeCallback();
+      }
     };
 
     return Slider;
@@ -212,7 +229,11 @@
 
       this.toOdds = __bind(this.toOdds, this);
 
+      this.setBetDescription = __bind(this.setBetDescription, this);
+
       this.selectBet = __bind(this.selectBet, this);
+
+      this.updateBet = __bind(this.updateBet, this);
 
       this.selectGroup = __bind(this.selectGroup, this);
 
@@ -279,7 +300,7 @@
       var _this = this;
       this.el.find(".event_middle").html("Loading");
       return $.ajax({
-        url: "http://192.168.1.103:3000/getValidGroups",
+        url: "http://192.168.1.106:3000/getValidGroups",
         data: {
           event: this.id,
           user: 1
@@ -330,7 +351,15 @@
         step: 10,
         odds: this.selectedBet.bet.odds
       });
+      this.slider.setOnChangeCallback(this.updateBet);
+      this.updateBet();
       return this.toAmount();
+    };
+
+    Game.prototype.updateBet = function() {
+      var team;
+      team = this.selectedBet.team;
+      return this.el.find(".bet_description").text("Bet that " + team.city + " " + team.name + " will win");
     };
 
     Game.prototype.selectBet = function(team, type, bet) {
@@ -341,6 +370,8 @@
       };
       return this.toGroups();
     };
+
+    Game.prototype.setBetDescription = function(current) {};
 
     Game.prototype.toOdds = function() {
       this.el.transition({

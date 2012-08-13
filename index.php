@@ -136,7 +136,7 @@
 					</div>
 					<%if(schedule.spread){%>
 					<div class="spread" id="spread_<%=schedule.spread.id%>">
-						<%=schedule.spread.odds%>
+						<%=schedule.spread.points%>
 					</div>
 					<%}%>
 					<%if(schedule.moneyLine){%>

@@ -24,7 +24,7 @@ $(document).ready =>
 
 get_event_data = ->
 	$.ajax
-		url : "http://192.168.1.103:3000/eventResults",
+		url : "http://192.168.1.106:3000/eventResults",
 		dataType : "JSONP",
 		success : (data)->
 			for ev in data
@@ -60,6 +60,11 @@ class Slider
 		@percent = 0
 		@setupEvents @id
 		@beingTouched = false
+		@percent = .5
+		@update()
+
+	setOnChangeCallback: (@onChangeCallback) =>
+
 
 	setupEvents: ->
 		if Modernizr.touch
@@ -107,6 +112,8 @@ class Slider
 		ret = Math.abs(100/@odds) * amount if(@odds < 0)
 		Math.floor(ret)
 
+	setPercent: (@percent) =>
+
 	update: =>
 		pos = Math.ceil(@percent * @width)
 		pos = 0 if pos < 0
@@ -122,8 +129,8 @@ class Slider
 		amountPos = pos + @left - (@box.width / 2)
 		amountPos = @left if amountPos < @left
 		amountPos = @width - @box.width + @left if amountPos > @width - @box.width + @left
-		result = @calculateResult(roundedAmount)
-		output = "$#{roundedAmount} -> $#{result}"
+		@reward = @calculateResult(roundedAmount)
+		output = "$#{roundedAmount} -> $#{@reward}"
 
 		$("##{@id}")
 		.parent()
@@ -131,6 +138,7 @@ class Slider
 			left : amountPos
 		.text(output)
 		@current = roundedAmount
+		@onChangeCallback() if @onChangeCallback?
 
 
 class Game
@@ -172,7 +180,7 @@ class Game
 	getValidGroups : () =>
 		@el.find(".event_middle").html("Loading");
 		$.ajax
-			url : "http://192.168.1.103:3000/getValidGroups",
+			url : "http://192.168.1.106:3000/getValidGroups",
 			data :
 				event : @id
 				user : 1
@@ -205,7 +213,25 @@ class Game
 			min : group.min_bet
 			step : 10
 			odds : @selectedBet.bet.odds
+		@slider.setOnChangeCallback(@updateBet)
+		@updateBet()
 		@toAmount()
+
+	updateBet : () =>
+		# setBetDescription(, @slider.reward)
+		team = @selectedBet.team
+		# switch @selectedBet.type
+		# 	when "line"
+		# 		text = "Bet $#{@slider.current} that #{team.city} #{team.name} will win pays $#{@slider.reward}"
+		# 	when "spread"
+		# 		if @selectedBet.bet >
+		# 		text = "Bet $#{@slider.current} that #{team.city} #{team.name} will win pays $#{@slider.reward}"
+		# 	when "line"
+		# 		text = "Bet $#{@slider.current} that #{team.city} #{team.name} will win pays $#{@slider.reward}"
+
+		# else if @selectedBet.type
+		@el.find(".bet_description").text("Bet that #{team.city} #{team.name} will win")
+
 
 	selectBet : (team, type, bet) =>
 		@selectedBet =
@@ -213,6 +239,9 @@ class Game
 			type : type
 			bet : bet
 		@toGroups()
+
+	setBetDescription : (current) =>
+
 
 	toOdds : () =>
 		@el.transition "marginLeft" : 6
