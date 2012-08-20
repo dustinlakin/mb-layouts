@@ -6,119 +6,6 @@
 </head>
 <body>
 	<div id="container">
-		<div class="event">
-			<div class="event_left">
-				<div class="event_time">
-					August 4th, 2012 | 12:30 ET
-				</div>
-				<div class="team">
-					<div class="team_name">
-						Los Angeles Lakers
-					</div>
-					<div class="spread">
-						+10
-					</div>
-					<div class="line">
-						+320
-					</div>
-					<br style="clear:both"/>
-				</div>
-
-				<div class="team">
-					<div class="team_name">
-						Boston Celtics
-					</div>
-					<div class="spread">
-						-10
-					</div>
-					<div class="line">
-						-120
-					</div>
-
-					<br style="clear:both"/>
-				</div>
-				<div class="over_under">
-					<div class="under">
-						Under 120
-					</div>
-					<div class="over">
-						Over 120
-					</div>
-					<br style="clear:both"/>
-				</div>
-			</div>
-			<div class="event_middle">
-				<ul class="groups">
-					<li>
-						<div class="group_name">
-							I'm New
-						</div>
-						<div class="group_amount_limits">
-							$100 - $500
-						</div>
-					</li>
-					<li>
-						<div class="group_name">
-							NBA Champs
-						</div>
-						<div class="group_amount_limits">
-							$100 - $1500
-						</div>
-					</li>
-				</ul>
-			</div>
-			<div class="event_right">
-				<div class="back_button" id="back_btn">
-				</div>
-				<div class="amount">
-					testing
-				</div>
-				<div id="slider_event" class="slider">
-					<div class="slider_fill">
-					</div>
-
-				<!-- 	<div class="slider_button">
-					</div> -->
-				</div>
-			</div>
-		</div>
-		<div class="event">
-			<div class="event_left">
-				<div class="event_time">
-					August 4th, 2012 | 12:30 ET
-				</div>
-				<div class="team">
-					<div class="team_name">
-						Los Angeles Lakers
-					</div>
-					<div class="spread">
-						+10
-					</div>
-					<div class="line">
-						+320
-					</div>
-					<br style="clear:both"/>
-				</div>
-
-				<div class="team">
-					<div class="team_name">
-						Boston Celtics
-					</div>
-					<div class="spread">
-						-10
-					</div>
-					<div class="line">
-						-120
-					</div>
-
-					<br style="clear:both"/>
-				</div>
-			</div>
-			<div class="event_right">
-				<div class="back_button" id="back_btn">
-				</div>
-			</div>
-		</div>
 	</div>
 
 	<script type="text/template" id="singleGame">
@@ -164,20 +51,29 @@
 				<%}%>
 			</div>
 			<div class="event_middle">
+				<div class="back_button" id="back_btn_right_<%=game.id%>">
+				</div>
+				<div class="groups_content">
+
+				</div>
 				
 			</div>
 			<div class="event_right">
-				<div class="back_button" id="back_btn">
+				<div class="back_button" id="back_btn_right_<%=game.id%>">
 				</div>
-				<div class="bet_description">
-					Bet Descriptions Goes Here
-				</div>
-				<div class="amount">
-					testing
-				</div>
+				<div class="bet_amount_holder">
+					<div class="bet_description">
+						Bet Descriptions Goes Here
+					</div>
+					<div class="slider_container">
+						<div class="amount">
+							testing
+						</div>
 
-				<div id="slider_event_<%=game.id%>" class="slider">
-					<div class="slider_fill">
+						<div id="slider_event_<%=game.id%>" class="slider">
+							<div class="slider_fill">
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

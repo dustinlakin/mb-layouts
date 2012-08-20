@@ -162,14 +162,26 @@ html, body{
 
 }
 
+.slider_container{
+	position: relative;
+}
+
+.bet_amount_holder{
+	position: relative;
+}
+
 .amount{
 	position: absolute;
-	top:75px;
+	top: -25px;
 	left: 30px;
 	width: 120px;
 	height: 20px;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #8D8D8D;
+	border-left: 1px solid #8D8D8D;
+	border-right: 1px solid #8D8D8D;
 	text-align: center;
+	color: #8D8D8D;
+	font-size: 15px;
 }
 
 .range{

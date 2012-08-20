@@ -1,24 +1,4 @@
 $(document).ready =>
-	$(".event_left").on "click", ->
-		bet_transition_groups this
-	$(".back_button").on "click", ->
-		bet_transition_home this
-	$(".groups li").on "click", ->
-		bet_transition_amount this
-	paper = Raphael "back_btn", 50, 50	
-	paper
-	.path("M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z")
-	.attr
-		fill: "#B4B4B4"
-		stroke: "none"
-		width: 50
-		height: 50
-	.transform("t8,8s2,2")
-	test = new Slider 
-		id :"slider_event"
-		max : 500
-		min : 100
-		step : 20
 
 	get_event_data()
 
@@ -30,22 +10,24 @@ get_event_data = ->
 			for ev in data
 				console.log "creating event ",ev
 				createEvent(ev)
+			drawRaphael()
 
 createEvent = (data)->
 	console.log(data)
 	console.log(new Game(data))
 
-bet_transition_groups = (el) ->
-	$(el).parent().transition
-		"marginLeft" : -315
-
-bet_transition_home = (el) ->
-	$(el).parent().parent().transition
-		"marginLeft" : 6 
-
-bet_transition_amount = (el) ->
-	$(el).parent().parent().parent().transition
-		"marginLeft" : -635
+drawRaphael = ()->
+	$('.back_button').each( (i) ->
+		paper = Raphael $(this)[0], 30, 30	
+		paper
+		.path("M21.871,9.814 15.684,16.001 21.871,22.188 18.335,25.725 8.612,16.001 18.335,6.276z")
+		.attr
+			fill: "#B4B4B4"
+			stroke: "none"
+			width: 30
+			height: 30
+	)
+	
 
 
 class Slider
@@ -159,9 +141,24 @@ class Game
 		$("#container").append(compiled({game : @}))
 		@el = $("#game_#{@id}")
 
+	centerAmountContent : () =>
+		height = @el.height();
+		newMargin = (height - @el.find(".bet_amount_holder").height()) / 2
+
+		@el.find(".bet_amount_holder").css
+			"margin-top" : newMargin 
+
+	centerGroupContent : () =>
+		height = @el.height();
+		newMargin = (height - @el.find(".groups").height()) / 2
+
+		@el.find(".groups").css
+			"margin-top" : newMargin 
+	# setupHeights : () =>
+		# @el.find(".event_right, .event_left, .event_middle").height(@el.height())
+
 	setupEvents : () =>
 		for sch, i in @schedules
-			console.log(sch, i)
 			if sch.spread
 				team = sch.team
 				spread = sch.spread
@@ -172,13 +169,17 @@ class Game
 				line = sch.moneyLine
 				@el.find("#line_#{line.id}").on "click", do(team,line) =>
 					=> @selectBet(team, "line", line)
+		for ou in @overUnder
+			new_el = if ou.over then @el.find(".over") else @el.find(".under")
+			new_el.on "click", do(ou) =>
+				=> @selectBet(null, "overUnder", ou)
 
 		@el.find(".back_button").on "click", =>
 			@toOdds()
 
 
 	getValidGroups : () =>
-		@el.find(".event_middle").html("Loading");
+		@el.find(".groups_content").html("Loading");
 		$.ajax
 			url : "http://192.168.1.106:3000/getValidGroups",
 			data :
@@ -195,11 +196,14 @@ class Game
 		for group, i in @groups
 			@el.find("#valid_group_#{group.id}").on "click", =>
 				@selectGroup(group.id)
+		@centerGroupContent()
+		@toGroups()
+
 
 	buildGroups = (el, groups) =>
 		temp = $("#valid_groups").html();
 		compiled = _.template(temp);
-		el.find(".event_middle").html(compiled({groups : groups}));
+		el.find(".groups_content").html(compiled({groups : groups}));
 
 	selectGroup : (id) =>
 		console.log("group #{id}")
@@ -215,22 +219,29 @@ class Game
 			odds : @selectedBet.bet.odds
 		@slider.setOnChangeCallback(@updateBet)
 		@updateBet()
+		@centerAmountContent()
 		@toAmount()
 
 	updateBet : () =>
 		# setBetDescription(, @slider.reward)
 		team = @selectedBet.team
-		# switch @selectedBet.type
-		# 	when "line"
-		# 		text = "Bet $#{@slider.current} that #{team.city} #{team.name} will win pays $#{@slider.reward}"
-		# 	when "spread"
-		# 		if @selectedBet.bet >
-		# 		text = "Bet $#{@slider.current} that #{team.city} #{team.name} will win pays $#{@slider.reward}"
-		# 	when "line"
-		# 		text = "Bet $#{@slider.current} that #{team.city} #{team.name} will win pays $#{@slider.reward}"
+		switch @selectedBet.type
+			when "line"
+				text = "#{team.city} #{team.name} Win"
+			when "spread"
+				if @selectedBet.bet.points > 0
+					text = "#{team.city} #{team.name} Win by #{@selectedBet.bet.points}"
+				else
+					text = "#{team.city} #{team.name} Win or <br/>Lose by Less than #{@selectedBet.bet.points}"
+			when "overUnder"
+				text = "Combined scores are "
+				if @selectedBet.bet.over > 0
+					text += "over #{@selectedBet.bet.points}"
+				else
+					text += "under #{@selectedBet.bet.points}"
 
 		# else if @selectedBet.type
-		@el.find(".bet_description").text("Bet that #{team.city} #{team.name} will win")
+		@el.find(".bet_description").html(text)
 
 
 	selectBet : (team, type, bet) =>
@@ -238,7 +249,7 @@ class Game
 			team : team
 			type : type
 			bet : bet
-		@toGroups()
+		@getValidGroups()
 
 	setBetDescription : (current) =>
 
@@ -247,11 +258,9 @@ class Game
 		@el.transition "marginLeft" : 6
 		@selectedGroup = null
 		@selectedBet = null
-		console.log @slider.current
 
 	toGroups : () =>
 		@el.transition "marginLeft" : -315
-		@getValidGroups()
 
 	toAmount : () =>
 		@el.transition "marginLeft" : -635
